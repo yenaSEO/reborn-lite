@@ -1,12 +1,33 @@
-// 브라우저 기능으로 목소리를 내고(말하기), 대답을 글로 받고(음성 인식), 마이크·카메라를 켠다.
-// shortcut: 질문 목소리는 브라우저 기본 목소리다. Typecast로 미리 만든 파일이 생기면 speak만 바꾼다.
+// 목소리 내기(서버 Typecast, 안 되면 브라우저 목소리), 대답을 글로 받기(음성 인식), 대답에 맞춘 반응 받기, 마이크·카메라 켜기.
 
 const Recognition = (window as any).SpeechRecognition ?? (window as any).webkitSpeechRecognition
+export const API = import.meta.env.VITE_API_URL ?? 'http://localhost:5000'
+export type Who = 'haru' | 'interviewer'
+let audio: HTMLAudioElement | null = null
 
-// 글을 소리 내어 읽고, 다 읽으면 끝나는 Promise (3단계 면접관은 낮고 느리게)
-export function speak(text: string, who: 'haru' | 'interviewer' = 'haru') {
+// 말하던 목소리를 멈춘다
+export function stopSpeak() {
+  audio?.pause()
+  audio = null
+  speechSynthesis.cancel()
+}
+
+// 글을 소리 내어 읽고, 다 읽으면 끝나는 Promise
+export async function speak(text: string, who: Who = 'haru') {
+  stopSpeak()
+  try {
+    const r = await fetch(`${API}/tts`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text, who }) })
+    if (!r.ok) throw new Error('tts')
+    const a = (audio = new Audio(URL.createObjectURL(await r.blob())))
+    await new Promise<void>((resolve) => { a.onended = a.onerror = a.onpause = () => resolve(); a.play().catch(() => resolve()) })
+  } catch {
+    await browserSpeak(text, who)
+  }
+}
+
+// 서버 목소리가 안 될 때 쓰는 브라우저 기본 목소리 (면접관은 낮고 느리게)
+function browserSpeak(text: string, who: Who) {
   return new Promise<void>((resolve) => {
-    speechSynthesis.cancel()
     const u = new SpeechSynthesisUtterance(text)
     u.lang = 'ko-KR'
     u.voice = speechSynthesis.getVoices().find((v) => v.lang.startsWith('ko')) ?? null
@@ -15,6 +36,16 @@ export function speak(text: string, who: 'haru' | 'interviewer' = 'haru') {
     u.onend = u.onerror = () => resolve()
     speechSynthesis.speak(u)
   })
+}
+
+// 서버(Claude)에 대답을 보내 반응 + 다음 질문으로 잇는 말을 받는다. 실패하면 null
+export async function reply(body: { who: Who; question: string; answer: string; next: string | null; retried: boolean; history: { ai: boolean; text: string }[] }) {
+  try {
+    const r = await fetch(`${API}/reply`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+    return r.ok ? ((await r.json()) as { say: string; retry: boolean }) : null
+  } catch {
+    return null
+  }
 }
 
 // 대답 듣기 시작. onText로 지금까지 들은 글을 넘기고, stop()을 부르면 끝난다

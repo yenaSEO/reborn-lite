@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Home, Mine, Phone } from './Home'
 import { Prep1, Prep2, Prep3, Profile, Result, Talk1, Talk2, Talk3 } from './Flow'
-import { stopCam } from './voice'
+import { stopCam, stopSpeak } from './voice'
 
 export type Screen = 'home' | 'mine' | 'phone' | 'prep1' | 'talk1' | 'prep2' | 'talk2' | 'profile' | 'prep3' | 'talk3' | 'result'
 export type Progress = { done: number; name: string } // done: 마친 단계 수(0~3)
@@ -28,7 +28,7 @@ export default function App() {
   const [p, setP] = useState(load)
 
   const go = (s: Screen) => {
-    if (s === 'home' || s === 'mine') { speechSynthesis.cancel(); stopCam() }
+    if (s === 'home' || s === 'mine') { stopSpeak(); stopCam() }
     setScreen(s)
     scrollTo(0, 0)
   }

@@ -1,5 +1,5 @@
 # reborn 경량 웹 서버.
-# 지금은 뼈대: /health, 그리고 배포 서버에서 Whisper·CNN 3개의 메모리와 시간을 재는 /stats, /transcribe.
+# /health, 대화용 /tts·/reply(talk.py), 그리고 배포 서버에서 Whisper·CNN 3개의 메모리와 시간을 재는 /stats, /transcribe.
 # shortcut: 측정용 코드다. 1단계 분석 코드를 옮겨 올 때 /transcribe는 실제 분석으로 바꾼다.
 import json
 import os
@@ -15,6 +15,10 @@ app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 16000 * 4 * 200
 # 화면(Static Site)과 서버 주소가 달라서 화면 주소의 요청을 허용한다.
 CORS(app, origins=os.environ.get("FRONTEND_ORIGIN", "*"))
+
+from talk import talk  # noqa: E402  하루·면접관 목소리(/tts)와 대답에 맞춘 반응(/reply)
+
+app.register_blueprint(talk)
 
 HERE = os.path.dirname(__file__)
 LABELS = ["prolongation", "tremor", "energy"]

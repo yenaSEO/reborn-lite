@@ -66,15 +66,21 @@ function Meta({ stage, name, say }: { stage: string; name: string; say: string }
 const cam = <span className="cam"><i />카메라 켜짐</span>
 const STEPS: [string, string, ReactNode][] = [
   ['목소리로 가볍게 이야기해요', '이력서나 자료는 필요 없어요. 이름, 요즘 관심사처럼 편한 이야기부터 말로 나눠요. 하루의 말은 채팅처럼 글로도 보여요.',
-    <div className="mock chat"><div className="bub ai"><small>하루</small>안녕하세요! 오늘은 편하게 이야기 나눠요. 뭐라고 불러 드리면 될까요?</div><div className="bub me"><small>내 대답 (말로 했어요)</small>음… 민지라고 불러 주세요.</div><div className="bub ai"><small>하루</small>민지 님, 반가워요. 요즘 관심 있는 건 뭐예요?</div><div className="microw"><span className="mic"><Mic /></span>말하는 중… 다 말했으면 한 번 더 눌러요</div></div>],
+    <div className="mock chat"><div className="bub ai"><small>하루</small>안녕하세요! 오늘은 편하게 이야기 나눠요. 뭐라고 불러 드리면 될까요?</div><div className="bub me"><small>내 대답 (말로 했어요)</small>음… 민지라고 불러 주세요.</div><div className="bub ai"><small>하루</small>민지 님, 반가워요. 요즘 관심 있는 건 뭐예요?</div><div className="microw"><span className="mic"><Mic /></span>말하는 중… 다 말했으면 "답변 마치기"를 눌러요</div></div>],
   ['화면 속 하루와 영상 통화해요', '같은 하루가 이번엔 캐릭터로 나와요. 내 얼굴은 화면에 띄우지 않고, 카메라로 시선과 표정만 살펴봐요.',
-    <div className="mock"><div className="call">{cam}<div className="cap">요즘 해 보고 싶은 일 있어요?</div></div></div>],
+    <div className="mock"><div className="vc">{cam}<div className="win" /><div className="cap">요즘 해 보고 싶은 일 있어요?</div></div></div>],
   ['실전처럼 면접을 봐요', '새 면접관이 하루와 나눈 이야기로 나에게 맞는 질문을 해요. 앞 단계에서 편안했던 정도에 맞춰 난이도도 바뀌어요.',
     <div className="mock"><div className="qbar"><span>실전 면접</span><b>질문 2 / 5</b></div><div className="prog"><i /></div><div className="call real">{cam}<div className="cap">사진 동아리 경험을 조금 더 이야기해 주세요.</div></div></div>],
   ['결과를 보고, 더 연습할 곳을 골라요', '세 단계를 마치면 말하기 습관과 시선·표정을 한 번에 정리해 드려요. 그걸 보고 더 연습하고 싶은 단계를 골라 다시 해 볼 수 있어요.',
-    <div className="mock"><div className="report"><Pentagon v={HABITS.map((h) => h.v)} size={150} />
-      <ul>{HABITS.slice(1).map((h) => <li key={h.name}>{h.name}<span>{h.st}</span></li>)}</ul></div>
-      <div className="coach"><b>코치 노트</b> · 실전 면접에서 긴 멈춤이 줄었어요. (예시)</div>
+    <div className="mock"><div className="rep2">
+      <div className="c"><h4>말하기 습관</h4><Pentagon v={HABITS.map((h) => h.v)} size={200} labels={HABITS.map((h) => h.short)} /></div>
+      <div className="c"><h4>시선과 표정</h4>
+        <div className="tb"><span>깜빡임</span><span className="on">시선</span><span>표정</span></div>
+        <div className="fs"><b>좋아졌어요</b>2단계보다 면접관을 더 오래 바라봤어요</div>
+        <div className="tr">2단계<div><i style={{ left: '12%', width: '8%' }} /><i style={{ left: '40%', width: '11%' }} /><i style={{ left: '72%', width: '7%' }} /></div></div>
+        <div className="tr">3단계<div><i style={{ left: '24%', width: '6%' }} /><i style={{ left: '62%', width: '5%' }} /></div></div>
+      </div></div>
+      <div className="coach"><b>코치 노트</b> · 실전 면접에서 긴 멈춤이 줄고 면접관을 더 오래 바라봤어요. (예시)</div>
       <div className="chips"><span className="on">1단계 다시 연습</span><span>2단계 다시 연습</span><span>3단계 다시 연습</span></div></div>],
 ]
 

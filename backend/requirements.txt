@@ -9,3 +9,7 @@ numpy==1.26.4
 librosa==0.10.2.post1
 torch==2.4.1+cpu
 openai-whisper==20250625
+
+# 대화: 목소리(Typecast)와 반응(Claude)
+anthropic==2.3.0
+typecast-python==0.4.0

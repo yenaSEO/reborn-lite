@@ -94,8 +94,6 @@ h2{font-size:24px;line-height:1.3;letter-spacing:-0.02em;font-weight:800}
 .s2{position:relative;height:calc(100vh - 64px);min-height:640px;background:radial-gradient(60% 60% at 50% 35%,#f4f1fc 0%,#f7f7f8 70%);overflow:hidden}
 .s2 .figure{position:absolute;left:50%;top:40px;margin-left:-200px;width:400px;height:520px;border-radius:200px 200px 24px 24px;background:var(--char) url(/haru.jpg) center top/cover;transition:filter .3s}
 .s2 .figure.think{filter:saturate(.7) brightness(.96)}
-.talking{animation:talk .5s ease-in-out infinite alternate}
-@keyframes talk{to{transform:translateY(-3px) scale(1.008)}}
 .camdot{position:absolute;top:16px;right:20px;display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-3)}
 .camdot i{width:7px;height:7px;border-radius:50%;background:var(--accent)}
 .card{position:absolute;left:50%;bottom:32px;transform:translateX(-50%);width:760px;max-width:calc(100% - 32px);background:#fff;border-radius:24px;padding:28px 36px 24px;box-shadow:0 20px 50px rgba(21,24,28,.10);text-align:center}
@@ -112,6 +110,21 @@ h2{font-size:24px;line-height:1.3;letter-spacing:-0.02em;font-weight:800}
 .card .listen b{font-size:16px}
 .link{font-size:14px;color:var(--ink-3);text-decoration:none;display:inline-flex;align-items:center;gap:4px;cursor:pointer}
 
+/* 넘어가기(작은 글씨)와 답변 마치기 */
+.skip{font-size:13px;color:var(--ink-3);text-decoration:underline;text-underline-offset:3px}
+.donebtn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;font-size:15px}
+.mic .bars{height:26px}.mic .bars i{background:#fff}
+/* 2단계 눈 맞춤 안내 */
+.guide3{display:grid;gap:10px;margin:22px 0}
+.guide3 div{display:flex;gap:14px;align-items:center;background:var(--bg-2);border-radius:12px;padding:12px 16px;font-size:15px}
+.guide3 .n{flex:none;width:28px;height:28px;border-radius:50%;background:#fff;display:grid;place-items:center;font-weight:800;font-size:13px;color:var(--accent)}
+.eyes{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;padding:4px 10px;border-radius:999px}
+.eyes.off{background:var(--bg-2);color:var(--ink-3)}
+.eyes.on{background:var(--accent-soft);color:var(--accent-ink)}
+.eyes.on i{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:d 1.2s infinite}
+.speakpill{position:absolute;left:50%;top:536px;transform:translateX(-50%);display:flex;align-items:center;gap:8px;background:#fff;border-radius:999px;padding:6px 14px;font-size:13px;color:var(--ink-2);box-shadow:0 4px 12px rgba(21,24,28,.08);z-index:1}
+.speakpill .bars{height:16px}.speakpill .bars i{width:3px}
+
 /* 이해 카드 */
 .profile{max-width:760px;margin:0 auto}
 .pf{margin-top:24px;border-top:1px solid var(--ink)}
@@ -122,18 +135,17 @@ h2{font-size:24px;line-height:1.3;letter-spacing:-0.02em;font-weight:800}
 .pf input::placeholder{color:var(--ink-3)}
 
 /* 3단계: 글 없는 대화 */
-.s3{position:relative;height:100vh;min-height:600px;background:#222;overflow:hidden}
-.s3 .person{position:absolute;inset:0;background:url(/interviewer.jpg) center/cover}
-.s3 .person.talking{animation-name:talk3}
-@keyframes talk3{to{transform:scale(1.012)}}
-.s3 .top{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;padding:20px 28px;font-size:14px;color:#fff;background:linear-gradient(rgba(0,0,0,.35),transparent)}
-.s3 .top b{font-weight:700}
-.s3 .top .quit{color:#fff}
-.s3 .bar{position:absolute;left:50%;bottom:28px;transform:translateX(-50%);display:flex;align-items:center;gap:20px;background:rgba(255,255,255,.92);border-radius:999px;padding:10px 12px 10px 24px;box-shadow:0 10px 30px rgba(21,24,28,.15);white-space:nowrap}
+.s3{height:100vh;min-height:600px;background:#1d2126;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;position:relative}
+.s3 .win{width:min(62vw,1000px);aspect-ratio:16/9;border-radius:18px;background:url(/interviewer.jpg) center/cover;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.s3 .top{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;padding:20px 28px;font-size:14px;color:#cfd5db}
+.s3 .top b{color:#fff;font-weight:700}
+.s3 .top .quit{color:#cfd5db}
+.s3 .bar{display:flex;align-items:center;gap:20px;background:#fff;border-radius:999px;padding:10px 12px 10px 24px;white-space:nowrap}
 .s3 .bar .bars{height:24px}.s3 .bar .bars i{width:4px}
 .s3 .bar .st{font-size:15px;font-weight:600;min-width:90px}
 .s3 .bar .btn{padding:10px 18px;font-size:14px;border-radius:999px}
-.s3 .demo{position:absolute;left:50%;bottom:100px;transform:translateX(-50%);max-width:640px}
+.s3 .skip{color:#aab1b8}
+.s3 .demo{max-width:640px}
 
 /* 결과 */
 .result{display:grid;grid-template-columns:1fr 1fr;gap:24px}
@@ -234,18 +246,12 @@ h2{font-size:24px;line-height:1.3;letter-spacing:-0.02em;font-weight:800}
 .home .microw{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:8px;font-size:13px;color:var(--ink-3)}
 .home .mic{width:48px;height:48px;box-shadow:none;cursor:default}
 .home .mic .ico{width:22px;height:22px}
-.home .call{position:relative;aspect-ratio:16/10;border-radius:12px;background:var(--char) url(/haru.jpg) center 15%/cover}
-.home .call.real{background:var(--human) url(/interviewer.jpg) center/cover}
-.home .call .cap{position:absolute;left:12px;right:12px;bottom:12px;background:rgba(255,255,255,.92);border-radius:8px;padding:8px 12px;font-size:13px}
 .home .cam{position:absolute;top:12px;right:12px;display:flex;align-items:center;gap:6px;font-size:12px;background:rgba(255,255,255,.9);padding:4px 10px;border-radius:999px;color:var(--ink-2)}
 .home .cam i{width:7px;height:7px;border-radius:50%;background:var(--accent)}
 .home .qbar{display:flex;justify-content:space-between;font-size:13px;color:var(--ink-3);margin-bottom:10px}
 .home .qbar b{color:var(--ink)}
 .home .prog{height:4px;background:var(--bg-2);border-radius:2px;margin-bottom:12px}
 .home .prog i{display:block;height:100%;width:40%;background:var(--accent);border-radius:2px}
-.home .report{display:grid;grid-template-columns:150px 1fr;gap:20px;align-items:center}
-.home .report ul{list-style:none;font-size:13px;color:var(--ink-2)}
-.home .report li{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--line)}
 .home .coach{margin-top:12px;border-radius:10px;padding:10px 12px;font-size:13px}
 .home .faq{border-top:1px solid var(--ink)}
 .home .faq div{display:grid;grid-template-columns:280px 1fr;gap:24px;padding:20px 0;border-bottom:1px solid var(--line);font-size:16px}
@@ -254,6 +260,25 @@ h2{font-size:24px;line-height:1.3;letter-spacing:-0.02em;font-weight:800}
 .home .dock{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);display:flex;align-items:center;gap:24px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:10px 10px 10px 24px;box-shadow:0 10px 30px rgba(21,24,28,.12);font-size:14px;color:var(--ink-2);opacity:0;pointer-events:none;transition:opacity .3s;white-space:nowrap}
 .home .dock.on{opacity:1;pointer-events:auto}
 .home .dock .btn{padding:12px 22px;font-size:15px}
+
+/* 메인 3번: 실전 면접관 */
+.home .call{position:relative;aspect-ratio:16/10;border-radius:12px;background:var(--human) url(/interviewer.jpg) center/cover}
+.home .call .cap{position:absolute;left:12px;right:12px;bottom:12px;background:rgba(255,255,255,.92);border-radius:8px;padding:8px 12px;font-size:13px}
+/* 메인 2번: 영상 통화 창 안의 하루 */
+.home .vc{position:relative;aspect-ratio:16/10;border-radius:12px;background:#f1eefb;display:grid;place-items:center;overflow:hidden}
+.home .vc .win{width:46%;aspect-ratio:3/4;border-radius:14px;background:var(--char) url(/haru.jpg) center 8%/cover;box-shadow:0 8px 20px rgba(21,24,28,.10);margin-bottom:34px}
+.home .vc .cap{position:absolute;left:12px;right:12px;bottom:12px;background:rgba(255,255,255,.95);border-radius:8px;padding:8px 12px;font-size:13px;text-align:center}
+/* 메인 4번: 결과 미리보기 두 칸 */
+.home .rep2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.home .rep2 .c{border:1px solid var(--line);border-radius:12px;padding:12px}
+.home .rep2 h4{font-size:13px;margin-bottom:6px}
+.home .rep2 .tb{display:grid;grid-template-columns:repeat(3,1fr);background:var(--bg-2);border-radius:8px;padding:3px;font-size:11px;text-align:center;color:var(--ink-3)}
+.home .rep2 .tb span.on{background:#fff;border-radius:6px;color:var(--ink);font-weight:700}
+.home .rep2 .fs{display:flex;gap:6px;align-items:flex-start;margin-top:10px;font-size:12px;line-height:1.5}
+.home .rep2 .fs b{flex:none;background:var(--accent-soft);color:var(--accent-ink);font-size:11px;padding:1px 7px;border-radius:999px}
+.home .rep2 .tr{display:grid;grid-template-columns:34px 1fr;gap:6px;align-items:center;margin-top:6px;font-size:11px;color:var(--ink-3)}
+.home .rep2 .tr div{position:relative;height:9px;border-radius:5px;background:var(--accent-soft)}
+.home .rep2 .tr i{position:absolute;top:0;bottom:0;border-radius:3px;background:#b9bfc6}
 
 /* 폰: 메인만 깨지지 않게 */
 @media (max-width:760px){
@@ -266,7 +291,7 @@ h2{font-size:24px;line-height:1.3;letter-spacing:-0.02em;font-weight:800}
   .home .step{grid-template-columns:1fr;gap:28px}
   .home .step.flip .txt{order:0}
   .home .faq div{grid-template-columns:1fr;gap:4px}
-  .home .report{grid-template-columns:1fr}
+  .home .rep2{grid-template-columns:1fr}
   .home .dock{display:none}
 }
-@media (prefers-reduced-motion:reduce){.bars i,.dots i,.talking{animation:none}}
+@media (prefers-reduced-motion:reduce){.bars i,.dots i,.eyes.on i{animation:none}}
