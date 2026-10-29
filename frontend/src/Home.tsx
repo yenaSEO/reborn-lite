@@ -71,7 +71,7 @@ export function Home({ p, go, start }: { p: Progress; go: (s: Screen) => void; s
 const cam = <span className="cam"><i />카메라 켜짐</span>
 const STEPS: [string, string, ReactNode][] = [
   ['목소리로 가볍게 이야기해요', '이력서나 자료는 필요 없어요. 이름, 요즘 관심사처럼 편한 이야기부터 말로 나눠요. 하루의 말은 채팅처럼 글로도 보여요.',
-    <div className="mock chat"><div className="bub ai"><small>하루</small>안녕하세요! 오늘은 편하게 이야기 나눠요. 뭐라고 불러 드리면 될까요?</div><div className="bub me"><small>내 대답 (말로 했어요)</small>음… 민지라고 불러 주세요.</div><div className="bub ai"><small>하루</small>민지 님, 반가워요. 요즘 관심 있는 건 뭐예요?</div><div className="microw"><span className="mic"><Mic /></span>말하는 중… 다 말했으면 "답변 마치기"를 눌러요</div></div>],
+    <div className="mock chat"><div className="bub ai"><small>하루</small>안녕하세요! 오늘은 편하게 이야기 나눠요. 뭐라고 불러 드리면 될까요?</div><div className="bub me"><small>내 대답 (말로 했어요)</small>음… 서연라고 불러 주세요.</div><div className="bub ai"><small>하루</small>서연 님, 반가워요. 요즘 관심 있는 건 뭐예요?</div><div className="microw"><span className="mic"><Mic /></span>말하는 중… 다 말했으면 "답변 마치기"를 눌러요</div></div>],
   ['화면 속 하루와 영상 통화해요', '같은 하루가 이번엔 캐릭터로 나와요. 통화 중에는 내 얼굴을 띄우지 않고, 카메라로 시선과 표정만 살펴봐요.',
     <div className="mock"><div className="tile"><span className="st"><i />연결됨 · 01:12</span><span className="tag">하루</span></div><p className="vcq">요즘 해 보고 싶은 일이 있어요?</p>
       <div className="cb"><span className="btn">하루를 보며 대답하기</span><i /></div></div>],

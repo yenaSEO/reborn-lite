@@ -1,9 +1,9 @@
-// 연습 흐름 화면: 단계 시작 확인 → 1단계 채팅 → 2단계 하루 영상 통화 → 이해 카드 → 3단계 실전 면접 → 결과.
+// 연습 흐름 화면: 단계 시작 확인 → 1단계 채팅 → 2단계 하루 영상 통화 → 이해 카드 → 3단계 실전 면접. 결과는 Result.tsx.
 // 시안 flow-v4~v7을 따른다. 질문 순서는 정해 두고, 대답에 맞춘 반응은 서버(Claude)가 만든다. 분석은 아직 없다.
 import { useEffect, useRef, useState } from 'react'
-import { COACH, FACE, HABITS, NODS, PROFILE, STAGE1, STAGE2, STAGE3, type Q } from './script'
-import { cam, getMedia, listen, reply, speak, stopCam, stopSpeak, type Who } from './voice'
-import { Bars, Cam, Check, Dots, Mic, Pentagon } from './ui'
+import { NODS, PROFILE, STAGE1, STAGE2, STAGE3, type Q } from './script'
+import { cam, getMedia, listen, reply, speak, stopSpeak, type Who } from './voice'
+import { Bars, Cam, Check, Dots, Mic } from './ui'
 import type { Screen } from './App'
 
 const demo = new URLSearchParams(location.search).has('demo')
@@ -18,6 +18,7 @@ function useTalk(qs: Q[], who: Who, onDone: () => void, auto = false) {
   const [phase, setPhase] = useState<'speak' | 'ready' | 'listen' | 'think'>('speak')
   const [live, setLive] = useState('')
   const [log, setLog] = useState<Line[]>([{ ai: true, text: qs[0].q }])
+  const [bye, setBye] = useState('') // 마지막 마무리 인사 (읽는 동안 화면 글도 이걸로)
   const ear = useRef<{ stop(): void } | null>(null)
   const turn = useRef(0) // 읽기를 끊고 다시 읽을 때, 끊긴 읽기의 끝 신호를 무시하려고 센다
   const alive = useRef(true)
@@ -49,7 +50,7 @@ function useTalk(qs: Q[], who: Who, onDone: () => void, auto = false) {
       return setCur({ i: cur.i, line: r.say, retried: true })
     }
     if (last) {
-      if (r) { setLog([...lines, { ai: true, text: r.say }]); setPhase('speak'); await speak(r.say, who) }
+      if (r) { setLog([...lines, { ai: true, text: r.say }]); setBye(r.say); setPhase('speak'); await speak(r.say, who) }
       if (alive.current) onDone()
       return
     }
@@ -59,7 +60,7 @@ function useTalk(qs: Q[], who: Who, onDone: () => void, auto = false) {
   }
   const again = () => { stopEar(); start() }
   const replay = () => { stopEar(); ask(cur.line) }
-  return { i: cur.i, n: qs.length, q: qs[cur.i], line: cur.line, phase, live, log, start, finish, again, replay }
+  return { i: cur.i, n: qs.length, q: qs[cur.i], line: bye || cur.line, bye, phase, live, log, start, finish, again, replay }
 }
 
 // 대답하지 않고 넘어가기 (말하기 전에만 보이는 작은 글씨)
@@ -208,7 +209,7 @@ export function Talk2({ done, quit }: { done: () => void; quit: () => void }) {
     <div className="vcall">
       <div className={`tile big ${face}`} role="img" aria-label="하루">
         <span className="st"><i />연결됨 · {time}</span>
-        {!end && <span className="no">질문 {t.i + 1} / {t.n}</span>}
+        {!end && !t.bye && <span className="no">질문 {t.i + 1} / {t.n}</span>}
         <span className="tag">{on === 'speak' && <Bars />}하루</span>
         {cam && <div className={`tile me pip ${pip ? '' : 'gone'}`}><video ref={video} autoPlay muted playsInline /></div>}
       </div>
@@ -221,12 +222,12 @@ export function Talk2({ done, quit }: { done: () => void; quit: () => void }) {
         : <>
           <p className="q">{t.line}</p>
           {on === 'ready' && <Hint q={t.q} />}
-          <div className="cbar">
+          {!t.bye && <><div className="cbar">
             <button className="btn" disabled={on !== 'ready'} onClick={t.start}><Mic />하루를 보며 대답하기</button>
             <button className="rb" aria-label="이 질문 넘어가기" title="이 질문 넘어가기" disabled={on !== 'ready'} onClick={() => t.finish(true)}><svg className="ico" viewBox="0 0 24 24"><path d="M6 6l7 6-7 6M15 6v12" /></svg></button>
             <HangUp quit={quit} />
           </div>
-          <p className="hint">⏭ 이 질문 넘어가기 · 빨간 버튼은 통화 끝내기</p></>}
+          <p className="hint">가운데 버튼은 이 질문 넘어가기, 빨간 버튼은 통화 끝내기예요</p></>}</>}
     </div>
   )
 }
@@ -293,38 +294,5 @@ export function Talk3({ done, quit }: { done: () => void; quit: () => void }) {
         {on && <Skip onClick={() => t.finish(true)} />}
         {on && <Hint q={t.q} />}</>}
     </div>
-  )
-}
-
-// 결과: 말하기 습관 + 시선과 표정 + 코치 노트 + 다시 연습할 단계 고르기 (모두 예시 값)
-export function Result({ name, go }: { name: string; go: (s: Screen) => void }) {
-  const [tab, setTab] = useState(1)
-  useEffect(stopCam, [])
-  const f = FACE[tab]
-  return (
-    <main>
-      <h1>{name ? `${name} 님, ` : ''}<em>끝까지 해냈어요</em></h1>
-      <p className="lead" style={{ marginBottom: 28 }}>세 단계에서 들은 말하기 습관을 정리했어요. 점수가 아니라 다음에 해 볼 것들이에요.</p>
-      <div className="result">
-        <div className="panel"><h2>말하기 습관</h2><p className="small">면접 인상에 영향을 주는 다섯 가지</p>
-          <div className="habit"><Pentagon v={HABITS.map((h) => h.v)} size={240} labels={HABITS.map((h) => h.short)} />
-            <ul>{HABITS.map((h) => <li key={h.name}><div>{h.name}<span className={h.good ? 'good' : ''}>{h.st}</span></div><p>{h.desc}</p></li>)}</ul></div></div>
-        <div className="panel"><h2>시선과 표정</h2><p className="small">2·3단계 카메라로 살펴봤어요</p>
-          <div className="tabs" role="tablist">{FACE.map((x, n) => <button key={x.tab} role="tab" aria-selected={n === tab} className={n === tab ? 'on' : ''} onClick={() => setTab(n)}>{x.tab}</button>)}</div>
-          <div className="fstat"><span className="sb">{f.st}</span><p>{f.text}</p></div>
-          {tab === 1 && <div className="tl">
-            <div className="tlr"><b>2단계</b><div className="bar2"><i style={{ left: '12%', width: '7%' }} /><i style={{ left: '38%', width: '10%' }} /><i style={{ left: '70%', width: '6%' }} /></div></div>
-            <div className="tlr"><b>3단계</b><div className="bar2"><i style={{ left: '22%', width: '5%' }} /><i style={{ left: '61%', width: '4%' }} /></div></div>
-            <p className="small" style={{ marginTop: 6 }}>회색 칸이 시선을 다른 곳에 둔 순간이에요.</p></div>}
-          <h2 style={{ marginTop: 24 }}>코치 노트</h2>
-          <div className="coach">{COACH}</div></div>
-      </div>
-      <div className="panel again"><h2>더 연습해 볼까요?</h2><p className="small">연습하고 싶은 단계를 골라 다시 해 볼 수 있어요.</p>
-        <div className="opts">
-          <button className="opt rec" onClick={() => go('prep1')}><b>1단계 목소리 대화</b><span>"음, 어"를 줄이는 연습</span></button>
-          <button className="opt" onClick={() => go('prep2')}><b>2단계 영상 통화</b><span>표정을 편하게 푸는 연습</span></button>
-          <button className="opt" onClick={() => go('prep3')}><b>3단계 실전 면접</b><span>처음부터 다시 실전처럼</span></button>
-        </div></div>
-    </main>
   )
 }
