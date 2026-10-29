@@ -39,6 +39,9 @@ import whisper  # noqa: E402
 
 from model import SmallCNN  # noqa: E402
 
+# Render Standard는 CPU가 1개인데 torch는 8개로 보고 일을 쪼개 오히려 느려진다
+torch.set_num_threads(1)
+
 STARTUP["import_sec"] = round(time.time() - t, 2)
 STARTUP["after_import"] = memory_mb()
 
@@ -110,6 +113,14 @@ def transcribe():
         "text": text,
         "memory": memory_mb(),
     }
+
+
+# 첫 사용자가 기다리지 않게 켤 때 한 번 돌려 둔다(librosa·Whisper 첫 실행 준비)
+t = time.time()
+run_cnns(np.zeros(16000 * 3, dtype=np.float32))
+WHISPER.transcribe(np.zeros(16000, dtype=np.float32), language="ko", word_timestamps=True, fp16=False)
+STARTUP["warmup_sec"] = round(time.time() - t, 2)
+STARTUP["after_warmup"] = memory_mb()
 
 
 if __name__ == "__main__":
