@@ -3,12 +3,13 @@ services:
   - type: web
     name: reborn-lite-api
     runtime: python
-    plan: free # torch·Whisper를 올려 잴 때 standard로 바꾼다
+    plan: standard # 2GB. 다 재고 나면 대시보드에서 Suspend하거나 free로 내린다
     region: singapore
     branch: main
     rootDir: backend
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --workers 1 --threads 2 --timeout 120
+    # Whisper base 파일을 빌드 때 받아 두어 첫 시작을 빠르게 한다
+    buildCommand: pip install -r requirements.txt && python -c "import whisper; whisper.load_model('base', download_root='whisper_cache')"
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --workers 1 --threads 2 --timeout 600
     healthCheckPath: /health
     envVars:
       - key: PYTHON_VERSION
