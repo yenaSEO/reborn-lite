@@ -1,7 +1,7 @@
-// 메인(첫 화면), 내 연습, 폰 안내 화면. 시안 main-v3와 flow-v2 12·13번을 옮겼다.
+// 메인(첫 화면), 내 연습, 폰 안내 화면. 첫 화면은 시안 flow-v7 4번(왼쪽 설명 + 오른쪽 영상 통화 그림).
 import { useEffect, useState, type ReactNode } from 'react'
 import { HABITS } from './script'
-import { Mic, Pentagon } from './ui'
+import { Bars, Mic, Pentagon } from './ui'
 import type { Progress, Screen } from './App'
 
 const NEXT: Screen[] = ['prep1', 'prep2', 'prep3', 'result']
@@ -21,14 +21,16 @@ export function Home({ p, go, start }: { p: Progress; go: (s: Screen) => void; s
     <div className="home">
       <header><div className="wrap"><div className="logo">reborn</div>
         <nav className="hnav"><a href="#faq">자주 묻는 질문</a><button className="mine" onClick={() => go('mine')}>내 연습</button></nav></div></header>
-      <section className="hero"><div className="wrap">
-        <h1><em>천천히</em>, 한 단계씩</h1>
-        <p className="lead">가벼운 대화부터 실전 면접까지 함께 연습해요.</p>
-        <div className="fan">
-          <div className="iv voice"><div className="ph"><div className="bars"><i /><i /><i /><i /><i /></div></div><Meta stage="1단계 · 목소리 대화" name="하루" say="편하게 이야기 나눠요." /></div>
-          <div className="iv char"><div className="ph" style={{ backgroundImage: 'url(/haru.jpg)' }} /><Meta stage="2단계 · 영상 통화" name="하루" say="같은 하루를 이번엔 얼굴 보고 만나요." /></div>
-          <div className="iv human"><div className="ph" style={{ backgroundImage: 'url(/interviewer.jpg)' }} /><Meta stage="3단계 · 실전 면접" name="실전 면접관" say="실제 면접처럼 질문해요." /></div>
-        </div>
+      <section className="hero"><div className="wrap"><div>
+        <span className="eyebrow">내 속도로 하는 AI 면접 연습</span>
+        <h1><em>천천히</em>,<br />한 단계씩</h1>
+        <p className="lead">가벼운 대화부터 실전 면접까지 말로 연습해요.</p>
+        <ol>
+          <li><i>1</i><span><b>목소리 대화</b> · 하루와 편한 이야기부터</span></li>
+          <li><i>2</i><span><b>영상 통화</b> · 하루 얼굴을 보며 눈 맞춤 연습</span></li>
+          <li><i>3</i><span><b>실전 면접</b> · 면접관이 실제처럼 질문</span></li>
+          <li><i>✓</i><span><b>결과</b> · 말하기 습관과 시선을 정리해 드려요</span></li>
+        </ol>
         {resume ? (
           <>
             <div className="resume"><div><b>{p.name ? `${p.name} 님, ` : ''}{p.done}단계까지 했어요</b><span>지난번 이야기에 이어서 {p.done + 1}단계를 시작해요.</span></div>
@@ -41,6 +43,14 @@ export function Home({ p, go, start }: { p: Progress; go: (s: Screen) => void; s
             <p className="note">이력서 없이 시작해요 · 약 15분 · 나눠서 해도 돼요</p>
           </>
         )}
+      </div>
+        <div className="shot" aria-hidden><div className="dots3"><i /><i /><i /></div>
+          <div className="tile"><span className="st"><i />연결됨 · 01:12</span><span className="tag">하루</span></div>
+          <p className="q">요즘 해 보고 싶은 일이 있어요?</p>
+          <div className="cb"><span className="btn">하루를 보며 대답하기</span><i /></div>
+          <div className="float me"><span className="mic"><Bars /></span><div><b>내 대답</b><br /><span>말로 대답해요</span></div></div>
+          <div className="float rs"><h5>결과 미리보기</h5><Pentagon v={HABITS.map((h) => h.v)} size={196} labels={HABITS.map((h) => h.short)} /></div>
+        </div>
       </div></section>
 
       {STEPS.map(([h, t, mock], i) => (
@@ -51,24 +61,20 @@ export function Home({ p, go, start }: { p: Progress; go: (s: Screen) => void; s
 
       <section id="faq"><div className="wrap"><h2 className="center" style={{ marginBottom: 40 }}>자주 묻는 질문</h2>
         <div className="faq">{FAQ.map(([q, a]) => <div key={q}><b>{q}</b><p>{a}</p></div>)}</div></div></section>
-      <footer><div className="wrap">reborn</div></footer>
+      <footer><div className="wrap">2026 reborn 팀 데모</div></footer>
       <div className={`dock ${dock ? 'on' : ''}`}><span>약 15분 · 로그인 없이 바로 시작해요</span>
         <button className="btn dark" onClick={() => start(resume ? NEXT[p.done] : 'prep1')}>연습 시작하기 →</button></div>
     </div>
   )
 }
 
-// 면접관 카드 아래 글
-function Meta({ stage, name, say }: { stage: string; name: string; say: string }) {
-  return <div className="meta"><div className="stage">{stage}</div><div className="name">{name}</div><div className="say">{say}</div></div>
-}
-
 const cam = <span className="cam"><i />카메라 켜짐</span>
 const STEPS: [string, string, ReactNode][] = [
   ['목소리로 가볍게 이야기해요', '이력서나 자료는 필요 없어요. 이름, 요즘 관심사처럼 편한 이야기부터 말로 나눠요. 하루의 말은 채팅처럼 글로도 보여요.',
     <div className="mock chat"><div className="bub ai"><small>하루</small>안녕하세요! 오늘은 편하게 이야기 나눠요. 뭐라고 불러 드리면 될까요?</div><div className="bub me"><small>내 대답 (말로 했어요)</small>음… 민지라고 불러 주세요.</div><div className="bub ai"><small>하루</small>민지 님, 반가워요. 요즘 관심 있는 건 뭐예요?</div><div className="microw"><span className="mic"><Mic /></span>말하는 중… 다 말했으면 "답변 마치기"를 눌러요</div></div>],
-  ['화면 속 하루와 영상 통화해요', '같은 하루가 이번엔 캐릭터로 나와요. 내 얼굴은 화면에 띄우지 않고, 카메라로 시선과 표정만 살펴봐요.',
-    <div className="mock"><div className="vc">{cam}<div className="win" /><div className="cap">요즘 해 보고 싶은 일 있어요?</div></div></div>],
+  ['화면 속 하루와 영상 통화해요', '같은 하루가 이번엔 캐릭터로 나와요. 통화 중에는 내 얼굴을 띄우지 않고, 카메라로 시선과 표정만 살펴봐요.',
+    <div className="mock"><div className="tile"><span className="st"><i />연결됨 · 01:12</span><span className="tag">하루</span></div><p className="vcq">요즘 해 보고 싶은 일이 있어요?</p>
+      <div className="cb"><span className="btn">하루를 보며 대답하기</span><i /></div></div>],
   ['실전처럼 면접을 봐요', '새 면접관이 하루와 나눈 이야기로 나에게 맞는 질문을 해요. 앞 단계에서 편안했던 정도에 맞춰 난이도도 바뀌어요.',
     <div className="mock"><div className="qbar"><span>실전 면접</span><b>질문 2 / 5</b></div><div className="prog"><i /></div><div className="call real">{cam}<div className="cap">사진 동아리 경험을 조금 더 이야기해 주세요.</div></div></div>],
   ['결과를 보고, 더 연습할 곳을 골라요', '세 단계를 마치면 말하기 습관과 시선·표정을 한 번에 정리해 드려요. 그걸 보고 더 연습하고 싶은 단계를 골라 다시 해 볼 수 있어요.',

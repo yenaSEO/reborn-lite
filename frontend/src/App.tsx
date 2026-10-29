@@ -56,9 +56,9 @@ export default function App() {
       </div></header>
       {screen === 'mine' && <Mine p={p} start={start} reset={reset} />}
       {screen === 'prep1' && <Prep1 go={go} />}
-      {screen === 'talk1' && <Talk1 done={() => { save({ done: 1 }); go('prep2') }} />}
+      {screen === 'talk1' && <Talk1 done={() => { save({ done: 1 }); go('prep2') }} rest={() => { save({ done: 1 }); go('home') }} />}
       {screen === 'prep2' && <Prep2 go={go} />}
-      {screen === 'talk2' && <Talk2 name={p.name} done={() => go('profile')} />}
+      {screen === 'talk2' && <Talk2 done={() => go('profile')} quit={() => go('home')} />}
       {screen === 'profile' && <Profile go={go} save={(name) => save({ done: 2, name })} />}
       {screen === 'prep3' && <Prep3 go={go} />}
       {screen === 'result' && <Result name={p.name} go={go} />}

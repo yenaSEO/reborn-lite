@@ -1,5 +1,5 @@
 // 연습 흐름 화면: 단계 시작 확인 → 1단계 채팅 → 2단계 하루 영상 통화 → 이해 카드 → 3단계 실전 면접 → 결과.
-// 시안 flow-v4를 따른다. 질문 순서는 정해 두고, 대답에 맞춘 반응은 서버(Claude)가 만든다. 분석은 아직 없다.
+// 시안 flow-v4~v7을 따른다. 질문 순서는 정해 두고, 대답에 맞춘 반응은 서버(Claude)가 만든다. 분석은 아직 없다.
 import { useEffect, useRef, useState } from 'react'
 import { COACH, FACE, HABITS, NODS, PROFILE, STAGE1, STAGE2, STAGE3, type Q } from './script'
 import { cam, getMedia, listen, reply, speak, stopCam, stopSpeak, type Who } from './voice'
@@ -67,6 +67,23 @@ const Skip = ({ onClick, label = '이 질문은 대답하지 않고 넘어갈게
 // 답변 마치기 (말하는 중의 주 버튼)
 const Done = ({ onClick }: { onClick: () => void }) => <button className="btn dark donebtn" onClick={onClick}><svg className="ico" viewBox="0 0 24 24"><path d="M5 12l5 5L20 7" /></svg>답변 마치기</button>
 
+// 영상 통화 버튼 줄의 빨간 통화 끝내기 (잘못 누를 수 있어 한 번 묻는다)
+const HangUp = ({ quit }: { quit: () => void }) => (
+  <button className="rb end" aria-label="통화 끝내기" title="통화 끝내기" onClick={() => confirm('통화를 끝낼까요? 2단계는 다음에 처음부터 다시 해요.') && quit()}>
+    <svg className="ico" viewBox="0 0 24 24"><path d="M3 14c5-5 13-5 18 0l-2.5 2.5-3-1.5v-2.5c-2.2-.7-4.8-.7-7 0V15l-3 1.5z" fill="currentColor" stroke="none" /></svg>
+  </button>
+)
+
+// 단계를 마치면 나오는 카드: 마쳤다는 말 + 다음으로 가는 버튼 (자동으로 넘어가지 않는다)
+function EndCard({ title, sub, next, onNext, rest, dark }: { title: string; sub: string; next: string; onNext: () => void; rest?: () => void; dark?: boolean }) {
+  return (
+    <div className="endc">
+      <div className="l"><span className="ok"><svg className="ico" viewBox="0 0 24 24"><path d="M5 12l5 5L20 7" /></svg></span><div><b>{title}</b><span className="s">{sub}</span></div></div>
+      <div className="r">{rest && <button className="link" onClick={rest}>오늘은 여기까지 할게요</button>}<button className={`btn ${dark ? 'dark' : ''}`} onClick={onNext}>{next} →</button></div>
+    </div>
+  )
+}
+
 // 대답 예시 글 (?demo=1일 때만)
 const Hint = ({ q }: { q: Q }) => (demo ? <span className="demo">읽어 보세요 · {q.demo}</span> : null)
 
@@ -109,8 +126,9 @@ export function Prep1({ go }: { go: (s: Screen) => void }) {
 }
 
 // 1단계: 채팅 모양 + 목소리로 대답
-export function Talk1({ done }: { done: () => void }) {
-  const t = useTalk(STAGE1, 'haru', done)
+export function Talk1({ done, rest }: { done: () => void; rest: () => void }) {
+  const [end, setEnd] = useState(false)
+  const t = useTalk(STAGE1, 'haru', () => setEnd(true))
   const box = useRef<HTMLDivElement>(null)
   useEffect(() => { box.current?.scrollTo(0, box.current.scrollHeight) }, [t.log, t.phase, t.live])
   const status = { speak: '말하고 있어요', ready: '기다리고 있어요', listen: '듣고 있어요', think: '생각하고 있어요' }[t.phase]
@@ -118,7 +136,7 @@ export function Talk1({ done }: { done: () => void }) {
 
   return (
     <main><div className="chatwrap">
-      <aside className="who"><div className="orb"><Bars still={turn} /></div><div><div className="nm">하루</div><div className="small">{status}</div></div><p className="small">대답은 글이 아니라<br />목소리로 해요</p></aside>
+      <aside className="who"><div className="orb"><Bars still={turn} /></div><div><div className="nm">하루</div><div className="small">{end ? '대화를 마쳤어요' : status}</div></div><p className="small">대답은 글이 아니라<br />목소리로 해요</p></aside>
       <section className="chat">
         <div className="log" ref={box}>
           {t.log.map((l, k) => <div key={k} className={`bub ${l.ai ? 'ai' : 'me'}`}><small>{l.ai ? '하루' : '내 대답'}</small>{l.text}</div>)}
@@ -127,7 +145,7 @@ export function Talk1({ done }: { done: () => void }) {
           )}
           {t.phase === 'think' && <div className="bub ai"><small>하루</small><Dots /></div>}
         </div>
-        <div className="ctrl">
+        {end ? <div className="ctrl"><EndCard title="1단계를 마쳤어요" sub={`목소리로 질문 ${t.n}개를 끝까지 마쳤어요.`} next="2단계로 가기" onNext={done} rest={rest} /></div> : <div className="ctrl">
           <div className="micbtn">
             {t.phase === 'listen'
               ? <span className="mic" aria-hidden><Bars /></span>
@@ -139,69 +157,76 @@ export function Talk1({ done }: { done: () => void }) {
           <div className="row" style={{ gap: 20 }}><span className="small">질문 {t.i + 1} / {t.n}</span>
             {t.phase === 'ready' && <Skip onClick={() => t.finish(true)} />}
             {t.phase === 'listen' && <Done onClick={() => t.finish()} />}</div>
-        </div>
+        </div>}
       </section>
     </div></main>
   )
 }
 
-// 2단계 시작 전: 마이크·카메라 확인 (내 얼굴은 여기서만 보여 준다)
+// 2단계 시작 전: 영상 통화 대기실. 하루와 내 카메라를 나란히 보여 주고 마이크·카메라를 확인한다
 export function Prep2({ go }: { go: (s: Screen) => void }) {
   const mic = useMic()
   const [cm, setCm] = useState<boolean | null>(null)
   const video = useRef<HTMLVideoElement>(null)
   useEffect(() => { getMedia('video').then((s) => { setCm(!!s); if (s && video.current) video.current.srcObject = s }) }, [])
+  const st = mic === null || cm === null ? '확인하는 중…' : !mic ? '마이크를 찾지 못했어요' : cm ? '마이크 · 카메라 잘 연결됐어요' : '마이크 잘 연결됐어요'
   return (
-    <main><div className="between">
-      <div className="panel">
-        <span className="badge">1단계를 마쳤어요</span>
-        <h1 style={{ marginTop: 20 }}>다음은 하루와 <em>영상 통화</em>예요</h1>
-        <p className="lead">이번엔 하루의 얼굴을 보면서 이야기를 이어 가요. 말하는 동안 눈 맞춤과 표정을 함께 연습해요.</p>
-        <div className="guide3">
-          <div><span className="n">1</span><span>마이크 버튼을 누르기 전에는 <b>어디를 봐도 괜찮아요.</b> 편하게 질문을 들어요.</span></div>
-          <div><span className="n">2</span><span><b>말하는 동안에는</b> 화면 속 하루를 봐 주세요. 면접관 눈을 보는 연습이에요.</span></div>
-          <div><span className="n">3</span><span>답을 떠올릴 때 <b>잠깐 다른 곳을 보는 건 괜찮아요.</b></span></div>
-        </div>
-        <div className="checks" style={{ marginTop: 0 }}>
-          <Check icon={<Mic />} title="마이크" ok={mic} okText="잘 들려요"><p>오늘 연습 잘 부탁드려요</p></Check>
-          <Check icon={<Cam />} title="카메라" ok={cm} okText="잘 보여요"><p>{cm === false ? '카메라 없이도 계속할 수 있어요' : '얼굴이 동그라미 안에 오게 해 주세요'}</p></Check>
-        </div>
-        <p className="small" style={{ marginBottom: 20 }}>대화 중에는 내 얼굴을 띄우지 않아요. 영상은 저장하지 않아요.</p>
-        <Foot go={go} next="talk2" label="2단계 시작하기" disabled={!mic} />
+    <main><div className="lobby">
+      <h1>하루와 <em>영상 통화</em>를 준비해요</h1>
+      <p className="lead">통화가 시작되면 내 화면은 사라지고 하루만 보여요.</p>
+      <div className="two">
+        <div className="tile" role="img" aria-label="하루"><span className="tag">하루</span></div>
+        <div className="tile me"><video ref={video} autoPlay muted playsInline />
+          {cm === false ? <p className="none">카메라 없이도 계속할 수 있어요</p> : <div className="guide" />}
+          <span className="st">{mic && <i />}{st}</span><span className="tag">나</span><span className="ns">영상은 저장하지 않아요</span></div>
       </div>
-      <div className="camchk"><video ref={video} autoPlay muted playsInline /><span className="note">확인할 때만 보여요</span>
-        {cm === false ? <p className="none">카메라를 찾지 못했어요</p> : <div className="guide" />}</div>
+      <div className="eye"><svg viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z" /><circle cx="12" cy="12" r="3" /></svg>말하는 동안에는 하루를 봐 주세요 <span>· 그 밖에는 편하게 봐도 돼요</span></div>
+      {mic === false && <p className="small" style={{ marginBottom: 16 }}>주소창 왼쪽 자물쇠를 눌러 마이크를 "허용"으로 바꾼 뒤 새로고침해 주세요.</p>}
+      <div><button className="btn" disabled={!mic} onClick={() => go('talk2')}>통화 시작하기</button></div>
+      <p style={{ marginTop: 16 }}><button className="link" onClick={() => go('home')}>오늘은 여기까지 할게요</button></p>
     </div></main>
   )
 }
 
-const CamDot = () => (cam ? <span className="camdot"><i />카메라 켜짐</span> : null)
-
-// 2단계: 가운데 하루 + 아래 질문 카드
-export function Talk2({ done, name }: { done: () => void; name: string }) {
-  const t = useTalk(STAGE2, 'haru', done)
-  const pill = <span className="pill">질문 {t.i + 1} / {t.n}</span>
+// 2단계: 하루와 영상 통화. 글은 창 밖 아래에만 두고, 말하는 중은 창 테두리 빛으로 보여 준다
+export function Talk2({ done, quit }: { done: () => void; quit: () => void }) {
+  const [end, setEnd] = useState(false)
+  const t = useTalk(STAGE2, 'haru', () => setEnd(true))
+  const [sec, setSec] = useState(0)
+  const [pip, setPip] = useState(true) // 연결 직후 2초만 내 화면을 작게 보여 준다
+  const video = useRef<HTMLVideoElement>(null)
+  useEffect(() => {
+    if (video.current) video.current.srcObject = cam
+    const a = setInterval(() => setSec((n) => n + 1), 1000)
+    const b = setTimeout(() => setPip(false), 2000)
+    return () => { clearInterval(a); clearTimeout(b) }
+  }, [])
+  const on = !end && t.phase
+  const face = on === 'speak' ? 'talk speak' : on === 'listen' ? 'listen on' : ''
+  const time = `${String(Math.floor(sec / 60)).padStart(2, '0')}:${String(sec % 60).padStart(2, '0')}`
   return (
-    <div className="s2">
-      <CamDot />
-      <div className={`figure ${t.phase === 'think' ? 'think' : ''}`} role="img" aria-label="하루" />
-      {t.phase === 'speak' && <span className="speakpill"><Bars />하루가 말하는 중</span>}
-      <div className="card" style={t.phase === 'think' ? { padding: '40px 36px' } : undefined}>
-        {t.phase === 'think' ? (
-          <><span className="pill">답변을 듣는 중</span><p className="q sm" style={{ marginTop: 16 }}>하루가 {name || '내'} 님 이야기를 듣고 있어요</p><div style={{ marginTop: 14 }}><Dots /></div></>
-        ) : t.phase === 'listen' ? (
-          <>{pill}<p className="q sm">{t.q.q}</p><Hint q={t.q} />
-            <div className="listen"><span className="eyes on"><i />눈 맞춤 연습 중</span><b style={{ marginTop: 6 }}>하루를 보면서 말해 주세요</b><span className="small">천천히 말해도 괜찮아요</span></div>
-            <div className="bot"><button className="link l" onClick={t.again}>처음부터 다시 말할게요</button><Done onClick={() => t.finish()} /><span /></div></>
-        ) : (
-          <>{pill}<p className="q">{t.line}</p>
-            <div style={{ marginTop: 10 }}><span className="eyes off">지금은 어디를 봐도 괜찮아요 · 버튼을 누르고 말해요</span></div>
-            {t.phase === 'ready' && <Hint q={t.q} />}
-            <div className="bot"><span />
-              <button className={`mic ${t.phase === 'ready' ? '' : 'off'}`} disabled={t.phase !== 'ready'} aria-label="말하기 시작" onClick={t.start}><Mic /></button>
-              {t.phase === 'ready' ? <span className="r"><Skip label="대답하지 않고 넘어갈게요" onClick={() => t.finish(true)} /></span> : <span />}</div></>
-        )}
+    <div className="vcall">
+      <div className={`tile big ${face}`} role="img" aria-label="하루">
+        <span className="st"><i />연결됨 · {time}</span>
+        {!end && <span className="no">질문 {t.i + 1} / {t.n}</span>}
+        <span className="tag">{on === 'speak' && <Bars />}하루</span>
+        {cam && <div className={`tile me pip ${pip ? '' : 'gone'}`}><video ref={video} autoPlay muted playsInline /></div>}
       </div>
+      {end ? <EndCard title="2단계를 마쳤어요" sub={`하루 얼굴을 보며 질문 ${t.n}개를 끝까지 마쳤어요.`} next="하루가 정리한 내용 보기" onNext={done} />
+        : on === 'listen' ? <>
+          <Hint q={t.q} />
+          <div className="cbar" style={{ marginTop: 30 }}><Done onClick={() => t.finish()} /><HangUp quit={quit} /></div>
+          <p className="hint"><button onClick={t.again}>처음부터 다시 말할게요</button></p></>
+        : on === 'think' ? <div style={{ marginTop: 30 }}><Dots /></div>
+        : <>
+          <p className="q">{t.line}</p>
+          {on === 'ready' && <Hint q={t.q} />}
+          <div className="cbar">
+            <button className="btn" disabled={on !== 'ready'} onClick={t.start}><Mic />하루를 보며 대답하기</button>
+            <button className="rb" aria-label="이 질문 넘어가기" title="이 질문 넘어가기" disabled={on !== 'ready'} onClick={() => t.finish(true)}><svg className="ico" viewBox="0 0 24 24"><path d="M6 6l7 6-7 6M15 6v12" /></svg></button>
+            <HangUp quit={quit} />
+          </div>
+          <p className="hint">⏭ 이 질문 넘어가기 · 빨간 버튼은 통화 끝내기</p></>}
     </div>
   )
 }
@@ -252,7 +277,8 @@ export function Prep3({ go }: { go: (s: Screen) => void }) {
 
 // 3단계: 글 없이, 어두운 화면 가운데 영상 통화 창 (그림은 움직이지 않고 물결로만 말하는 중을 보여 준다)
 export function Talk3({ done, quit }: { done: () => void; quit: () => void }) {
-  const t = useTalk(STAGE3, 'interviewer', done, true)
+  const [end, setEnd] = useState(false)
+  const t = useTalk(STAGE3, 'interviewer', () => setEnd(true), true)
   const st = { speak: '질문하는 중', ready: '', listen: '듣고 있어요', think: '잘 들었어요' }[t.phase]
   const on = t.phase === 'listen'
   return (
@@ -260,11 +286,12 @@ export function Talk3({ done, quit }: { done: () => void; quit: () => void }) {
       <div className="top"><span><b>실전 면접</b> · 질문 {t.i + 1} / {t.n}</span>
         <span>{cam && <span style={{ marginRight: 20 }}>● 카메라 켜짐</span>}<button className="quit" onClick={quit}>그만하기</button></span></div>
       <div className="win" role="img" aria-label="실전 면접관" />
-      <div className="bar"><Bars still={t.phase === 'think'} /><span className="st">{st}</span>
-        <button className="btn ghost" onClick={t.replay} disabled={t.phase === 'think'}>다시 들려주세요</button>
-        <button className="btn dark donebtn" onClick={() => t.finish()} disabled={!on}><svg className="ico" viewBox="0 0 24 24"><path d="M5 12l5 5L20 7" /></svg>답변 마치기</button></div>
-      {on && <Skip onClick={() => t.finish(true)} />}
-      {on && <Hint q={t.q} />}
+      {end ? <EndCard title="면접을 마쳤어요. 수고하셨어요" sub={`질문 ${t.n}개를 끝까지 마쳤어요.`} next="결과 보러 가기" onNext={done} dark /> : <>
+        <div className="bar"><Bars still={t.phase === 'think'} /><span className="st">{st}</span>
+          <button className="btn ghost" onClick={t.replay} disabled={t.phase === 'think'}>다시 들려주세요</button>
+          <button className="btn dark donebtn" onClick={() => t.finish()} disabled={!on}><svg className="ico" viewBox="0 0 24 24"><path d="M5 12l5 5L20 7" /></svg>답변 마치기</button></div>
+        {on && <Skip onClick={() => t.finish(true)} />}
+        {on && <Hint q={t.q} />}</>}
     </div>
   )
 }
