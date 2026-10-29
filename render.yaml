@@ -1,0 +1,29 @@
+# Render Blueprint: 이 파일 하나로 화면(무료)과 서버를 같이 만든다.
+services:
+  - type: web
+    name: reborn-lite-api
+    runtime: python
+    plan: free # torch·Whisper를 올려 잴 때 standard로 바꾼다
+    region: singapore
+    branch: main
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --workers 1 --threads 2 --timeout 120
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      # 이름이 이미 쓰이고 있으면 Render가 주소 뒤에 글자를 붙인다. 그때 실제 주소로 고친다.
+      - key: FRONTEND_ORIGIN
+        value: https://reborn-lite.onrender.com
+
+  - type: web
+    name: reborn-lite
+    runtime: static
+    branch: main
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://reborn-lite-api.onrender.com
