@@ -176,7 +176,7 @@ export function Prep2({ go }: { go: (s: Screen) => void }) {
       <h1>하루와 <em>영상 통화</em>를 준비해요</h1>
       <p className="lead">통화가 시작되면 내 화면은 사라지고 하루만 보여요.</p>
       <div className="two">
-        <div className="tile" role="img" aria-label="하루"><span className="tag">하루</span></div>
+        <div className="tile" role="img" aria-label="하루"><span className="st"><i />기다리는 중</span><span className="tag">하루</span></div>
         <div className="tile me"><video ref={video} autoPlay muted playsInline />
           {cm === false ? <p className="none">카메라 없이도 계속할 수 있어요</p> : <div className="guide" />}
           <span className="st">{mic && <i />}{st}</span><span className="tag">나</span><span className="ns">영상은 저장하지 않아요</span></div>
@@ -203,7 +203,7 @@ export function Talk2({ done, quit }: { done: () => void; quit: () => void }) {
     return () => { clearInterval(a); clearTimeout(b) }
   }, [])
   const on = !end && t.phase
-  const face = on === 'speak' ? 'talk speak' : on === 'listen' ? 'listen on' : ''
+  const face = on === 'speak' ? 'talk speak' : on === 'listen' ? 'listen on' : on === 'think' ? 'think' : ''
   const time = `${String(Math.floor(sec / 60)).padStart(2, '0')}:${String(sec % 60).padStart(2, '0')}`
   return (
     <div className="vcall">

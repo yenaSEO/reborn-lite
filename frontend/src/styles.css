@@ -92,7 +92,7 @@ h2{font-size:24px;line-height:1.3;letter-spacing:-0.02em;font-weight:800}
 
 /* 2단계: 영상 통화 (대기실 → 연결 → 통화) */
 .tile{position:relative;border-radius:18px;overflow:hidden;aspect-ratio:16/10;background:#e3defc url(/haru.jpg) center 8%/auto 132% no-repeat}
-.tile.talk{background-image:url(/haru-talk.jpg)}.tile.listen{background-image:url(/haru-listen.jpg)}
+.tile.talk{background-image:url(/haru-talk.jpg)}.tile.listen{background-image:url(/haru-listen.jpg)}.tile.think{background-image:url(/haru-think.jpg)}
 .tile.me{background:#2b2f35}
 .tile video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
 .tile .tag,.tile .st{position:absolute;left:12px;display:flex;align-items:center;gap:7px;background:rgba(21,24,28,.55);color:#fff;font-size:14px;font-weight:600;border-radius:9px;padding:5px 11px}
