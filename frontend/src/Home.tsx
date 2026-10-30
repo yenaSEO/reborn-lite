@@ -71,12 +71,12 @@ export function Home({ p, go, start }: { p: Progress; go: (s: Screen) => void; s
 const cam = <span className="cam"><i />카메라 켜짐</span>
 const STEPS: [string, string, ReactNode][] = [
   ['목소리로 가볍게 이야기해요', '이력서나 자료는 필요 없어요. 이름, 요즘 관심사처럼 편한 이야기부터 말로 나눠요. 하루의 말은 채팅처럼 글로도 보여요.',
-    <div className="mock chat"><div className="bub ai"><small>하루</small>안녕하세요! 오늘은 편하게 이야기 나눠요. 뭐라고 불러 드리면 될까요?</div><div className="bub me"><small>내 대답 (말로 했어요)</small>음… 서연라고 불러 주세요.</div><div className="bub ai"><small>하루</small>서연 님, 반가워요. 요즘 관심 있는 건 뭐예요?</div><div className="microw"><span className="mic"><Mic /></span>말하는 중… 다 말했으면 "답변 마치기"를 눌러요</div></div>],
+    <div className="mock chat"><div className="bub ai"><small>하루</small>안녕하세요! 오늘은 편하게 이야기 나눠요. 뭐라고 불러 드리면 될까요?</div><div className="bub me"><small>내 대답 (말로 했어요)</small>음… 지우라고 불러 주세요.</div><div className="bub ai"><small>하루</small>지우 님, 반가워요. 요즘 관심 있는 건 뭐예요?</div><div className="microw"><span className="mic"><Mic /></span>말하는 중… 다 말했으면 "답변 마치기"를 눌러요</div></div>],
   ['화면 속 하루와 영상 통화해요', '같은 하루가 이번엔 캐릭터로 나와요. 통화 중에는 내 얼굴을 띄우지 않고, 카메라로 시선과 표정만 살펴봐요.',
     <div className="mock"><div className="tile"><span className="st"><i />연결됨 · 01:12</span><span className="tag">하루</span></div><p className="vcq">요즘 해 보고 싶은 일이 있어요?</p>
       <div className="cb"><span className="btn">하루를 보며 대답하기</span><i /></div></div>],
   ['실전처럼 면접을 봐요', '새 면접관이 하루와 나눈 이야기로 나에게 맞는 질문을 해요. 앞 단계에서 편안했던 정도에 맞춰 난이도도 바뀌어요.',
-    <div className="mock"><div className="qbar"><span>실전 면접</span><b>질문 2 / 5</b></div><div className="prog"><i /></div><div className="call real">{cam}<div className="cap">사진 동아리 경험을 조금 더 이야기해 주세요.</div></div></div>],
+    <div className="mock"><div className="qbar"><span>실전 면접</span><b>질문 2 / 5</b></div><div className="prog"><i /></div><div className="call real">{cam}<div className="cap">편의점 아르바이트 경험을 조금 더 이야기해 주세요.</div></div></div>],
   ['결과를 보고, 더 연습할 곳을 골라요', '세 단계를 마치면 말하기 습관과 시선·표정을 한 번에 정리해 드려요. 그걸 보고 더 연습하고 싶은 단계를 골라 다시 해 볼 수 있어요.',
     <div className="mock"><div className="rep2">
       <div className="c"><h4>말하기 습관</h4><Pentagon v={HABITS.map((h) => h.v)} size={200} labels={HABITS.map((h) => h.short)} /></div>

@@ -39,6 +39,8 @@ export function Result({ name, go, again }: { name: string; go: (s: Screen) => v
   const [open, setOpen] = useState(0)
   const r = again ? AGAIN : FIRST
   const vs = again && !flow
+  const fillers = vs && r.fillers.vs ? { ...r.fillers, ...r.fillers.vs } : r.fillers
+  const pauses = vs && r.pauses.vs ? { ...r.pauses, ...r.pauses.vs } : r.pauses
   const [today] = useState(() => new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' }))
   const meta = again ? [`${again.stage}단계 ${again.n}번째`, today, ...r.meta] : [r.meta[0], today, ...r.meta.slice(1)]
 
@@ -71,14 +73,14 @@ export function Result({ name, go, again }: { name: string; go: (s: Screen) => v
           })}</ul></div>
 
         <div className="five">
-          <div className="card"><h3>"음, 어" 같은 말 <Tag c={r.fillers.chip} /></h3><p className="k">발화 유창성</p>
-            <div className="words">{r.fillers.words.map(([w, n]) => <span key={w}>"{w}"<small>{n}</small></span>)}</div>
-            <div className="tick">{r.fillers.ticks.map((t, i) => <div key={i} className="seg">{t.map((x) => <i key={x} style={{ left: `${x}%` }} />)}</div>)}</div>
-            <div className="tickl">{r.fillers.tickNames.map((n) => <span key={n}>{n}</span>)}</div>
-            <p className="d">{rich(r.fillers.line)}</p></div>
-          <div className="card"><h3>오래 멈추기 <Tag c={r.pauses.chip} /></h3><p className="k">침묵 조절력 · 3초 넘게 멈춘 순간</p>
-            {r.pauses.rows.map(([n, ps]) => <div key={n} className="pz"><span>{n}</span><div className="ln">{ps.map(([x, s]) => <i key={x} className="lg" style={{ left: `${x}%`, width: '5%' }}><b>{s}</b></i>)}</div></div>)}
-            <p className="d">{rich(r.pauses.line)}</p></div>
+          <div className="card"><h3>"음, 어" 같은 말 <Tag c={fillers.chip} /></h3><p className="k">발화 유창성</p>
+            <div className="words">{fillers.words.map(([w, n]) => <span key={w}>"{w}"<small>{n}</small></span>)}</div>
+            <div className="tick">{fillers.ticks.map((t, i) => <div key={i} className="seg">{t.map((x) => <i key={x} style={{ left: `${x}%` }} />)}</div>)}</div>
+            <div className="tickl">{fillers.tickNames.map((n) => <span key={n}>{n}</span>)}</div>
+            <p className="d">{rich(fillers.line)}</p></div>
+          <div className="card"><h3>오래 멈추기 <Tag c={pauses.chip} /></h3><p className="k">침묵 조절력 · 3초 넘게 멈춘 순간</p>
+            {pauses.rows.map(([n, ps]) => <div key={n} className="pz"><span>{n}</span><div className="ln">{ps.map(([x, s]) => <i key={x} className="lg" style={{ left: `${x}%`, width: '5%' }}><b>{s}</b></i>)}</div></div>)}
+            <p className="d">{rich(pauses.line)}</p></div>
           <div className="card"><h3>소리 늘이기 <Tag c={r.prolong.chip} /></h3><p className="k">발화 지속성 · 한 소리를 길게 늘인 순간</p>
             <ul className="mo">{r.prolong.items.map(([u, rest, at]) => <li key={at}><q><u>{u}</u>{rest}</q><span>{at}</span></li>)}</ul>
             <p className="d">{rich(r.prolong.line)}</p></div>
@@ -147,7 +149,7 @@ export function Result({ name, go, again }: { name: string; go: (s: Screen) => v
 
       <div className="panel again" style={{ marginTop: 0 }}><h2>더 연습해 볼까요?</h2><p className="small">연습하고 싶은 단계를 골라 다시 해 볼 수 있어요. 다시 하면 지난번 결과와 비교해 드려요.</p>
         <div className="opts">
-          <button className="opt rec" onClick={() => go('prep1')}><b>1단계 목소리 대화</b><span>첫 문장 정하기 연습</span></button>
+          <button className="opt rec" onClick={() => go('prep1')}><b>1단계 목소리 대화</b><span>{r.actions[0].title} 연습</span></button>
           <button className="opt" onClick={() => go('prep2')}><b>2단계 영상 통화</b><span>표정을 편하게 푸는 연습</span></button>
           <button className="opt" onClick={() => go('prep3')}><b>3단계 실전 면접</b><span>처음부터 다시 실전처럼</span></button>
         </div></div>
