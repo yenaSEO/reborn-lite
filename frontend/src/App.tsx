@@ -48,7 +48,7 @@ export default function App() {
 
   if (screen === 'home') return <Home p={p} go={go} start={start} />
   if (screen === 'phone') return <Phone go={go} />
-  if (screen === 'talk3') return <Talk3 done={() => { finish(3); go('result') }} quit={() => { finish(3); go('result') }} />
+  if (screen === 'talk3') return <Talk3 done={() => { finish(3); go('result') }} quit={() => go('home')} />
 
   const n = STEP[screen] ?? 0
   return (
