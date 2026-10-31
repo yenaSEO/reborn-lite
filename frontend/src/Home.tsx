@@ -1,4 +1,4 @@
-// 메인(첫 화면), 내 연습, 폰 안내 화면. 첫 화면은 시안 flow-v7 4번(왼쪽 설명 + 오른쪽 영상 통화 그림).
+// 메인(첫 화면), 내 연습, 폰 안내 화면. 첫 화면은 왼쪽 설명 + 오른쪽 영상 통화 그림.
 import { useEffect, useState, type ReactNode } from 'react'
 import { HABITS } from './script'
 import { Bars, Mic, Pentagon } from './ui'

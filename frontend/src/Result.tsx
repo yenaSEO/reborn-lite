@@ -1,4 +1,4 @@
-// 결과 리포트: 이번 연습 정리 → 1 말하기 습관 → 2 시선과 표정 → 3 질문별 다시 보기 → 4 다음 연습 (시안 prototype/result-v12).
+// 결과 리포트: 이번 연습 정리 → 1 말하기 습관 → 2 시선과 표정 → 3 질문별 다시 보기 → 4 다음 연습.
 // 같은 단계를 다시 했으면(again) 지난번 같은 단계와 비교한 값을 보여 주고, 스위치로 1→2→3단계 흐름도 볼 수 있다.
 import { useEffect, useState, type ReactNode } from 'react'
 import { AGAIN, FIRST, type Chip } from './report'

@@ -1,5 +1,5 @@
 // 경량 웹 데모의 뼈대: 지금 어느 화면인지 정하고, 단계 진행을 브라우저(localStorage)에 저장한다.
-// ?screen=result 처럼 주소로 화면을 바로 열 수 있다(판넬 캡처용). ?demo=1이면 대답 예시 글이 보인다.
+// ?screen=result 처럼 주소로 화면을 바로 열 수 있다(판넬 캡처용).
 import { useState } from 'react'
 import { Home, Mine, Phone } from './Home'
 import { Prep1, Prep2, Prep3, Profile, Talk1, Talk2, Talk3 } from './Flow'

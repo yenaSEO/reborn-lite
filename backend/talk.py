@@ -13,7 +13,7 @@ from typecast.models import LanguageCode, Output, TTSRequest
 talk = Blueprint("talk", __name__)
 log = logging.getLogger(__name__)
 
-# 목소리 ID는 비밀이 아니라 기본값으로 둔다(2026-10-29 사용자가 고름: 하루=서현, 면접관=형진)
+# 목소리 ID는 비밀이 아니라 기본값으로 둔다(하루=서현, 면접관=형진)
 VOICES = {
     "haru": os.environ.get("TYPECAST_VOICE_HARU", "tc_69f2e455ea79fd197aa0476f"),
     "interviewer": os.environ.get("TYPECAST_VOICE_INTERVIEWER", "tc_682e8798603b4e9ed84074f5"),

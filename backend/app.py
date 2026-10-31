@@ -1,6 +1,6 @@
 # reborn 경량 웹 서버.
 # /health, 대화용 /tts·/reply(talk.py), 그리고 배포 서버에서 Whisper·CNN 3개의 메모리와 시간을 재는 /stats, /transcribe.
-# shortcut: 측정용 코드다. 1단계 분석 코드를 옮겨 올 때 /transcribe는 실제 분석으로 바꾼다.
+# 임시: 측정용 코드다. 1단계 분석 코드를 옮겨 올 때 /transcribe는 실제 분석으로 바꾼다.
 import json
 import os
 import shutil

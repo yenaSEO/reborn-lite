@@ -1,12 +1,11 @@
 // 연습 흐름 화면: 단계 시작 확인 → 1단계 채팅 → 2단계 하루 영상 통화 → 이해 카드 → 3단계 실전 면접. 결과는 Result.tsx.
-// 시안 flow-v4~v7을 따른다. 질문 순서는 정해 두고, 대답에 맞춘 반응은 서버(Claude)가 만든다. 분석은 아직 없다.
+// 질문 순서는 정해 두고, 대답에 맞춘 반응은 서버(Claude)가 만든다. 분석은 아직 없다.
 import { useEffect, useRef, useState } from 'react'
 import { NODS, PROFILE, STAGE1, STAGE2, STAGE3, type Q } from './script'
 import { cam, getMedia, listen, reply, speak, stopSpeak, type Who } from './voice'
 import { Bars, Cam, Check, Dots, Mic } from './ui'
 import type { Screen } from './App'
 
-const demo = new URLSearchParams(location.search).has('demo')
 type Line = { ai: boolean; text: string }
 
 // 한 단계의 주고받기: 말하기 → 기다림 → 듣기 → 반응 만드는 중 → 다음 말. auto면 말한 뒤 바로 듣는다(3단계)
@@ -38,7 +37,7 @@ function useTalk(qs: Q[], who: Who, onDone: () => void, auto = false) {
   // 대답 끝(skip이면 넘어가기): 대답을 남기고, Claude 반응으로 다시 묻거나 다음 질문으로 간다
   const finish = async (skip = false) => {
     stopEar()
-    const answer = skip ? '' : live || (demo ? qs[cur.i].demo : '')
+    const answer = skip ? '' : live
     const lines = [...log, { ai: false, text: skip ? '(넘어갔어요)' : answer || '(말로 대답했어요)' }]
     setLog(lines)
     setPhase('think')
@@ -60,7 +59,7 @@ function useTalk(qs: Q[], who: Who, onDone: () => void, auto = false) {
   }
   const again = () => { stopEar(); start() }
   const replay = () => { stopEar(); ask(cur.line) }
-  return { i: cur.i, n: qs.length, q: qs[cur.i], line: bye || cur.line, bye, phase, live, log, start, finish, again, replay }
+  return { i: cur.i, n: qs.length, line: bye || cur.line, bye, phase, live, log, start, finish, again, replay }
 }
 
 // 대답하지 않고 넘어가기 (말하기 전에만 보이는 작은 글씨)
@@ -84,9 +83,6 @@ function EndCard({ title, sub, next, onNext, rest, dark }: { title: string; sub:
     </div>
   )
 }
-
-// 대답 예시 글 (?demo=1일 때만)
-const Hint = ({ q }: { q: Q }) => (demo ? <span className="demo">읽어 보세요 · {q.demo}</span> : null)
 
 // 마이크 권한을 받아 확인 줄에 쓴다
 function useMic() {
@@ -141,8 +137,8 @@ export function Talk1({ done, rest }: { done: () => void; rest: () => void }) {
       <section className="chat">
         <div className="log" ref={box}>
           {t.log.map((l, k) => <div key={k} className={`bub ${l.ai ? 'ai' : 'me'}`}><small>{l.ai ? '하루' : '내 대답'}</small>{l.text}</div>)}
-          {turn && (t.phase === 'listen' || demo) && (
-            <div className="bub me live"><small>{t.phase === 'listen' ? '말하는 중' : '대답 예시'}</small>{t.live || (demo ? t.q.demo : '…')}</div>
+          {turn && t.phase === 'listen' && (
+            <div className="bub me live"><small>말하는 중</small>{t.live || '…'}</div>
           )}
           {t.phase === 'think' && <div className="bub ai"><small>하루</small><Dots /></div>}
         </div>
@@ -215,13 +211,11 @@ export function Talk2({ done, quit }: { done: () => void; quit: () => void }) {
       </div>
       {end ? <EndCard title="2단계를 마쳤어요" sub={`하루 얼굴을 보며 질문 ${t.n}개를 끝까지 마쳤어요.`} next="하루가 정리한 내용 보기" onNext={done} />
         : on === 'listen' ? <>
-          <Hint q={t.q} />
           <div className="cbar" style={{ marginTop: 30 }}><Done onClick={() => t.finish()} /><HangUp quit={quit} /></div>
           <p className="hint"><button onClick={t.again}>처음부터 다시 말할게요</button></p></>
         : on === 'think' ? <div style={{ marginTop: 30 }}><Dots /></div>
         : <>
           <p className="q">{t.line}</p>
-          {on === 'ready' && <Hint q={t.q} />}
           {!t.bye && <><div className="cbar">
             <button className="btn" disabled={on !== 'ready'} onClick={t.start}><Mic />하루를 보며 대답하기</button>
             <button className="rb" aria-label="이 질문 넘어가기" title="이 질문 넘어가기" disabled={on !== 'ready'} onClick={() => t.finish(true)}><svg className="ico" viewBox="0 0 24 24"><path d="M6 6l7 6-7 6M15 6v12" /></svg></button>
@@ -291,8 +285,7 @@ export function Talk3({ done, quit }: { done: () => void; quit: () => void }) {
         <div className="bar"><Bars still={t.phase === 'think'} /><span className="st">{st}</span>
           <button className="btn ghost" onClick={t.replay} disabled={t.phase === 'think'}>다시 들려주세요</button>
           <button className="btn dark donebtn" onClick={() => t.finish()} disabled={!on}><svg className="ico" viewBox="0 0 24 24"><path d="M5 12l5 5L20 7" /></svg>답변 마치기</button></div>
-        {on && <Skip onClick={() => t.finish(true)} />}
-        {on && <Hint q={t.q} />}</>}
+        {on && <Skip onClick={() => t.finish(true)} />}</>}
     </div>
   )
 }
