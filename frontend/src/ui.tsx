@@ -29,6 +29,22 @@ export function Pentagon({ v, size = 200, labels }: { v: number[]; size?: number
   )
 }
 
+// 둘러보기 모드(?look): 자문·검토용. 말하지 않고 질문을 넘기며 화면 흐름만 볼 수 있다
+export const look = new URLSearchParams(location.search).has('look')
+if (look) document.body.classList.add('look') // 안내 띠 자리만큼 1단계 채팅 칸을 줄인다(styles.css)
+
+// 둘러보기 모드 안내 띠. 대화 화면에서는 next(다음 질문)·end(이 단계 끝으로) 버튼이 붙는다
+export function LookBar({ next, end }: { next?: () => void; end?: () => void }) {
+  if (!look) return null
+  return (
+    <div className="lookbar">
+      <span><b>둘러보기 모드</b> · 질문과 하루·면접관의 말은 아직 다듬는 중이고, 결과는 예시 값이에요</span>
+      {next && <button onClick={next}>다음 질문 →</button>}
+      {end && <button onClick={end}>이 단계 끝으로 ⏭</button>}
+    </div>
+  )
+}
+
 // 단계 시작 때 마이크·카메라 확인 줄. ok가 null이면 확인 중
 export function Check({ icon, title, children, ok, okText }: { icon: ReactNode; title: string; children: ReactNode; ok: boolean | null; okText: string }) {
   return (

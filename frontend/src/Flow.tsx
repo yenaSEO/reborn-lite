@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { NODS, PROFILE, STAGE1, STAGE2, STAGE3, type Q } from './script'
 import { cam, getMedia, listen, reply, speak, stopSpeak, type Who } from './voice'
-import { Bars, Cam, Check, Dots, Mic } from './ui'
+import { Bars, Cam, Check, Dots, LookBar, Mic, look } from './ui'
 import type { Screen } from './App'
 
 type Line = { ai: boolean; text: string }
@@ -59,7 +59,11 @@ function useTalk(qs: Q[], who: Who, onDone: () => void, auto = false) {
   }
   const again = () => { stopEar(); start() }
   const replay = () => { stopEar(); ask(cur.line) }
-  return { i: cur.i, n: qs.length, line: bye || cur.line, bye, phase, live, log, start, finish, again, replay }
+  // 둘러보기 모드: 읽는 중이어도 끊고 다음 질문으로 / 단계 끝으로
+  const hush = () => { turn.current++; stopSpeak(); stopEar() }
+  const next = () => { if (phase !== 'think') { hush(); finish(true) } }
+  const end = () => { hush(); onDone() }
+  return { i: cur.i, n: qs.length, line: bye || cur.line, bye, phase, live, log, start, finish, again, replay, next, end }
 }
 
 // 대답하지 않고 넘어가기 (말하기 전에만 보이는 작은 글씨)
@@ -116,7 +120,7 @@ export function Prep1({ go }: { go: (s: Screen) => void }) {
       {mic === false && <p className="small" style={{ marginBottom: 16 }}>주소창 왼쪽 자물쇠를 눌러 마이크를 "허용"으로 바꾼 뒤 새로고침해 주세요.</p>}
       <div className="row" style={{ justifyContent: 'space-between' }}>
         <span className="small">1단계는 5분쯤 걸려요 · 중간에 나가도 이어서 할 수 있어요</span>
-        <button className="btn" disabled={!mic} onClick={() => go('talk1')}>1단계 시작하기</button>
+        <button className="btn" disabled={!mic && !look} onClick={() => go('talk1')}>1단계 시작하기</button>
       </div>
     </div></main>
   )
@@ -156,6 +160,7 @@ export function Talk1({ done, rest }: { done: () => void; rest: () => void }) {
             {t.phase === 'listen' && <Done onClick={() => t.finish()} />}</div>
         </div>}
       </section>
+      {!end && <LookBar next={t.next} end={t.end} />}
     </div></main>
   )
 }
@@ -179,7 +184,7 @@ export function Prep2({ go }: { go: (s: Screen) => void }) {
       </div>
       <div className="eye"><svg viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z" /><circle cx="12" cy="12" r="3" /></svg>말하는 동안에는 하루를 봐 주세요 <span>· 그 밖에는 편하게 봐도 돼요</span></div>
       {mic === false && <p className="small" style={{ marginBottom: 16 }}>주소창 왼쪽 자물쇠를 눌러 마이크를 "허용"으로 바꾼 뒤 새로고침해 주세요.</p>}
-      <div><button className="btn" disabled={!mic} onClick={() => go('talk2')}>통화 시작하기</button></div>
+      <div><button className="btn" disabled={!mic && !look} onClick={() => go('talk2')}>통화 시작하기</button></div>
       <p style={{ marginTop: 16 }}><button className="link" onClick={() => go('home')}>오늘은 여기까지 할게요</button></p>
     </div></main>
   )
@@ -222,6 +227,7 @@ export function Talk2({ done, quit }: { done: () => void; quit: () => void }) {
             <HangUp quit={quit} />
           </div>
           <p className="hint">가운데 버튼은 이 질문 넘어가기, 빨간 버튼은 통화 끝내기예요</p></>}</>}
+      {!end && <LookBar next={t.next} end={t.end} />}
     </div>
   )
 }
@@ -265,7 +271,7 @@ export function Prep3({ go }: { go: (s: Screen) => void }) {
         <Check icon={<Mic />} title="마이크" ok={mic} okText="잘 들려요"><p>오늘 연습 잘 부탁드려요</p></Check>
         <Check icon={<Cam />} title="카메라" ok={cm} okText="잘 보여요"><p>{cm === false ? '카메라 없이도 계속할 수 있어요' : '얼굴이 화면 가운데 와요'}</p></Check>
       </div>
-      <Foot go={go} next="talk3" label="실전 면접 시작하기" dark disabled={!mic} />
+      <Foot go={go} next="talk3" label="실전 면접 시작하기" dark disabled={!mic && !look} />
     </div></main>
   )
 }
@@ -286,6 +292,7 @@ export function Talk3({ done, quit }: { done: () => void; quit: () => void }) {
           <button className="btn ghost" onClick={t.replay} disabled={t.phase === 'think'}>다시 들려주세요</button>
           <button className="btn dark donebtn" onClick={() => t.finish()} disabled={!on}><svg className="ico" viewBox="0 0 24 24"><path d="M5 12l5 5L20 7" /></svg>답변 마치기</button></div>
         {on && <Skip onClick={() => t.finish(true)} />}</>}
+      {!end && <LookBar next={t.next} end={t.end} />}
     </div>
   )
 }

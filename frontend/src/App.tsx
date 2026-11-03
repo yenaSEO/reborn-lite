@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Home, Mine, Phone } from './Home'
 import { Prep1, Prep2, Prep3, Profile, Talk1, Talk2, Talk3 } from './Flow'
 import { Result } from './Result'
+import { LookBar } from './ui'
 import { stopCam, stopSpeak } from './voice'
 
 export type Screen = 'home' | 'mine' | 'phone' | 'prep1' | 'talk1' | 'prep2' | 'talk2' | 'profile' | 'prep3' | 'talk3' | 'result'
@@ -46,7 +47,7 @@ export default function App() {
   const finish = (stage: number, q: Partial<Progress> = {}) => save({ ...q, done: stage, last: stage, runs: p.runs.map((n, i) => (i === stage - 1 ? n + 1 : n)) })
   const again = p.last && p.runs[p.last - 1] > 1 ? { stage: p.last, n: p.runs[p.last - 1] } : null
 
-  if (screen === 'home') return <Home p={p} go={go} start={start} />
+  if (screen === 'home') return <><Home p={p} go={go} start={start} /><LookBar /></>
   if (screen === 'phone') return <Phone go={go} />
   if (screen === 'talk3') return <Talk3 done={() => { finish(3); go('result') }} quit={() => go('home')} />
 
@@ -68,6 +69,7 @@ export default function App() {
       {screen === 'profile' && <Profile go={go} save={(name) => finish(2, { name })} />}
       {screen === 'prep3' && <Prep3 go={go} />}
       {screen === 'result' && <Result name={p.name} go={go} again={again} />}
+      {!screen.startsWith('talk') && <LookBar />}
     </>
   )
 }
