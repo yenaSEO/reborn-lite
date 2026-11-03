@@ -47,7 +47,7 @@ export default function App() {
   const finish = (stage: number, q: Partial<Progress> = {}) => save({ ...q, done: stage, last: stage, runs: p.runs.map((n, i) => (i === stage - 1 ? n + 1 : n)) })
   const again = p.last && p.runs[p.last - 1] > 1 ? { stage: p.last, n: p.runs[p.last - 1] } : null
 
-  if (screen === 'home') return <><Home p={p} go={go} start={start} /><LookBar /></>
+  if (screen === 'home') return <Home p={p} go={go} start={start} />
   if (screen === 'phone') return <Phone go={go} />
   if (screen === 'talk3') return <Talk3 done={() => { finish(3); go('result') }} quit={() => go('home')} />
 
